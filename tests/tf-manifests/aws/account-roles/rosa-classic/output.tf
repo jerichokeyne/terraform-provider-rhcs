@@ -3,7 +3,8 @@ output "rhcs_versions" {
 }
 
 output "account_role_prefix" {
-  value = module.create_account_roles.account_role_prefix
+  # value = module.create_account_roles.account_role_prefix
+  value = var.account_role_prefix
 }
 
 output "path" {
@@ -22,10 +23,10 @@ output "rhcs_gateway_url" {
   value = var.url
 }
 
-output "installer_role_arn" {
-  value = local.installer_role_arn
-}
+# output "installer_role_arn" {
+#   value = local.installer_role_arn
+# }
 
-output "aws_account_id" {
-  value = local.aws_account_id
-}
+# output "aws_account_id" {
+#   value = local.aws_account_id
+# }

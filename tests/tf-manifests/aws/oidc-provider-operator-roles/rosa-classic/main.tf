@@ -53,8 +53,8 @@ module "oidc_config_input_resources" {
 }
 
 locals {
-  path = coalesce(var.path, "/")
-  ingress_role_name = substr("${var.operator_role_prefix}-openshift-ingress-operator-cloud-credentials", 0, 64)
+  path                      = coalesce(var.path, "/")
+  ingress_role_name         = substr("${var.operator_role_prefix}-openshift-ingress-operator-cloud-credentials", 0, 64)
   ingress_operator_role_arn = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role${local.path}${local.ingress_role_name}"
 }
 
@@ -73,16 +73,16 @@ data "rhcs_rosa_operator_roles" "operator_roles" {
 }
 
 # Create oidc provider and operator roles on AWS
-module "operator_roles_and_oidc_provider" {
-  count                       = var.oidc_config == null ? 0 : 1
-  source                      = "terraform-redhat/rosa-sts/aws"
-  version                     = ">= 0.0.14"
-  ocm_environment             = var.rhcs_environment
-  create_operator_roles       = true
-  create_oidc_provider        = true
-  cluster_id                  = ""
-  rh_oidc_provider_thumbprint = var.oidc_config == "managed" ? rhcs_rosa_oidc_config.oidc_config_managed[0].thumbprint : rhcs_rosa_oidc_config.oidc_config_unmanaged[0].thumbprint
-  rh_oidc_provider_url        = var.oidc_config == "managed" ? rhcs_rosa_oidc_config.oidc_config_managed[0].oidc_endpoint_url : rhcs_rosa_oidc_config.oidc_config_unmanaged[0].oidc_endpoint_url
-  operator_roles_properties   = data.rhcs_rosa_operator_roles.operator_roles.operator_iam_roles
-  path                        = local.path
-}
+# module "operator_roles_and_oidc_provider" {
+#   count                       = var.oidc_config == null ? 0 : 1
+#   source                      = "terraform-redhat/rosa-sts/aws"
+#   version                     = ">= 0.0.14"
+#   ocm_environment             = var.rhcs_environment
+#   create_operator_roles       = true
+#   create_oidc_provider        = true
+#   cluster_id                  = ""
+#   rh_oidc_provider_thumbprint = var.oidc_config == "managed" ? rhcs_rosa_oidc_config.oidc_config_managed[0].thumbprint : rhcs_rosa_oidc_config.oidc_config_unmanaged[0].thumbprint
+#   rh_oidc_provider_url        = var.oidc_config == "managed" ? rhcs_rosa_oidc_config.oidc_config_managed[0].oidc_endpoint_url : rhcs_rosa_oidc_config.oidc_config_unmanaged[0].oidc_endpoint_url
+#   operator_roles_properties   = data.rhcs_rosa_operator_roles.operator_roles.operator_iam_roles
+#   path                        = local.path
+# }

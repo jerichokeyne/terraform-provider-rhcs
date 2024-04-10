@@ -34,7 +34,8 @@ data "aws_caller_identity" "current" {
 }
 
 module "rhcs" {
-  source            = "../../../../../../terraform-rhcs-rosa-classic"
+  source            = "terraform-redhat/rosa-classic/rhcs"
+  version           = ">=1.5.0"
   openshift_version = local.version
   cluster_name      = var.cluster_name
 

@@ -3,6 +3,9 @@ package e2e
 import (
 	// nolint
 
+	"fmt"
+	"time"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/terraform-redhat/terraform-provider-rhcs/tests/ci"
@@ -117,6 +120,42 @@ var _ = Describe("HCP ImageMirror", ci.Day2, func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(imageMirrorResponse.Mirrors()).To(Equal(finalMirrors))
 		})
+
+	It("spam updates [id:000000]", func() {
+		for i := 0; i < 100; i++ {
+			By(fmt.Sprintf("Create image mirror with single mirror (Run: %d)", i))
+			source := "docker.io/library/alpine"
+			initialMirrors := []string{"quay.io/my-org/alpine"}
+			imageMirrorArgs := exec.NewImageMirrorArgs(clusterID, source, initialMirrors)
+
+			_, err := imageMirrorService.Apply(imageMirrorArgs)
+			Expect(err).ToNot(HaveOccurred())
+			time.Sleep(10 * time.Second)
+
+			By("Update image mirror to add additional mirrors")
+			updatedMirrors := []string{
+				"quay.io/my-org/alpine",
+				"registry.example.com/alpine",
+				"docker.io/my-org/alpine",
+			}
+			imageMirrorArgs.Mirrors = &updatedMirrors
+			_, err = imageMirrorService.Apply(imageMirrorArgs)
+			Expect(err).ToNot(HaveOccurred())
+			time.Sleep(10 * time.Second)
+
+			By("Update image mirror to remove some mirrors")
+			finalMirrors := []string{"registry.example.com/alpine"}
+			imageMirrorArgs.Mirrors = &finalMirrors
+			_, err = imageMirrorService.Apply(imageMirrorArgs)
+			Expect(err).ToNot(HaveOccurred())
+			time.Sleep(10 * time.Second)
+
+			By("Clean-up the config")
+			imageMirrorService.Destroy()
+			time.Sleep(10 * time.Second)
+		}
+
+	})
 
 	It("can validate invalid configurations",
 		ci.Medium, ci.FeatureImageMirror, func() {
